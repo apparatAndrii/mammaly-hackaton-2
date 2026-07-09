@@ -10,7 +10,7 @@ export function StatusBar() {
     const update = () => {
       const now = new Date();
       setTime(
-        now.toLocaleTimeString("ru-RU", {
+        now.toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
         }),

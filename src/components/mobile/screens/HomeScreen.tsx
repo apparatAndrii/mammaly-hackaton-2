@@ -1,9 +1,9 @@
 import { activities, pets } from "@/lib/mock-data";
 
 const moodLabels = {
-  happy: "Весёлый",
-  sleepy: "Сонный",
-  hungry: "Голодный",
+  happy: "Happy",
+  sleepy: "Sleepy",
+  hungry: "Hungry",
 } as const;
 
 export function HomeScreen() {
@@ -12,16 +12,16 @@ export function HomeScreen() {
   return (
     <div className="flex flex-col gap-5 px-4 pb-4">
       <section>
-        <p className="text-sm text-zinc-400">Добро пожаловать 👋</p>
+        <p className="text-sm text-zinc-400">Welcome back 👋</p>
         <h1 className="mt-1 text-2xl font-bold text-white">Mammaly</h1>
         <p className="mt-1 text-sm text-zinc-400">
-          Уход за питомцами в одном месте
+          Pet care in one place
         </p>
       </section>
 
       <section className="rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 p-4 shadow-lg shadow-violet-900/30">
         <p className="text-xs font-medium uppercase tracking-wide text-white/70">
-          Следующее событие
+          Up next
         </p>
         <div className="mt-3 flex items-center gap-3">
           <span className="text-3xl">{nextActivity.icon}</span>
@@ -36,8 +36,8 @@ export function HomeScreen() {
 
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Ваши питомцы</h2>
-          <span className="text-xs text-violet-400">{pets.length} всего</span>
+          <h2 className="text-base font-semibold text-white">Your pets</h2>
+          <span className="text-xs text-violet-400">{pets.length} total</span>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {pets.map((pet) => (
@@ -58,10 +58,10 @@ export function HomeScreen() {
 
       <section className="grid grid-cols-2 gap-3">
         {[
-          { label: "Кормление", emoji: "🍽️", count: "2 сегодня" },
-          { label: "Прогулки", emoji: "🦮", count: "1 сегодня" },
-          { label: "Здоровье", emoji: "💊", count: "Всё ок" },
-          { label: "Напоминания", emoji: "🔔", count: "3 активных" },
+          { label: "Feeding", emoji: "🍽️", count: "2 today" },
+          { label: "Walks", emoji: "🦮", count: "1 today" },
+          { label: "Health", emoji: "💊", count: "All good" },
+          { label: "Reminders", emoji: "🔔", count: "3 active" },
         ].map((item) => (
           <button
             key={item.label}

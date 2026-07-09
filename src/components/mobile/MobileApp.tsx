@@ -41,7 +41,7 @@ export function MobileApp() {
         </div>
 
         <p className="mt-6 hidden text-center text-sm text-zinc-500 md:block">
-          Эмуляция мобильного приложения · 390×780
+          Mobile app emulation · 390×780
         </p>
       </div>
     </div>

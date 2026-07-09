@@ -1,62 +1,60 @@
-import type { ActivityItem, Pet } from "./types";
-
-export const pets: Pet[] = [
+export const pets = [
   {
     id: "1",
-    name: "Барсик",
-    species: "Кот",
-    breed: "Британский",
-    age: "3 года",
+    name: "Whiskers",
+    species: "Cat",
+    breed: "British Shorthair",
+    age: "3 years",
     emoji: "🐱",
-    mood: "happy",
+    mood: "happy" as const,
   },
   {
     id: "2",
-    name: "Рекс",
-    species: "Собака",
-    breed: "Корги",
-    age: "5 лет",
+    name: "Rex",
+    species: "Dog",
+    breed: "Corgi",
+    age: "5 years",
     emoji: "🐶",
-    mood: "hungry",
+    mood: "hungry" as const,
   },
   {
     id: "3",
-    name: "Кеша",
-    species: "Попугай",
-    breed: "Волнистый",
-    age: "2 года",
+    name: "Kiwi",
+    species: "Parrot",
+    breed: "Budgerigar",
+    age: "2 years",
     emoji: "🦜",
-    mood: "sleepy",
+    mood: "sleepy" as const,
   },
 ];
 
-export const activities: ActivityItem[] = [
+export const activities = [
   {
     id: "1",
-    title: "Кормление",
+    title: "Feeding",
     time: "08:30",
     icon: "🍽️",
-    petName: "Барсик",
+    petName: "Whiskers",
   },
   {
     id: "2",
-    title: "Прогулка",
+    title: "Walk",
     time: "10:00",
     icon: "🦮",
-    petName: "Рекс",
+    petName: "Rex",
   },
   {
     id: "3",
-    title: "Визит к ветеринару",
+    title: "Vet visit",
     time: "14:00",
     icon: "🏥",
-    petName: "Рекс",
+    petName: "Rex",
   },
   {
     id: "4",
-    title: "Игра",
+    title: "Playtime",
     time: "18:45",
     icon: "🎾",
-    petName: "Барсик",
+    petName: "Whiskers",
   },
 ];

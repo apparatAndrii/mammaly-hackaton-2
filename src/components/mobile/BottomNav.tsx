@@ -10,10 +10,10 @@ type NavItem = {
 };
 
 const items: NavItem[] = [
-  { id: "home", label: "Главная", icon: Home },
-  { id: "pets", label: "Питомцы", icon: PawPrint },
-  { id: "activity", label: "Активность", icon: Activity },
-  { id: "profile", label: "Профиль", icon: User },
+  { id: "home", label: "Home", icon: Home },
+  { id: "pets", label: "Pets", icon: PawPrint },
+  { id: "activity", label: "Activity", icon: Activity },
+  { id: "profile", label: "Profile", icon: User },
 ];
 
 type BottomNavProps = {

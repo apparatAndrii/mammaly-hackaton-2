@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mammaly
 
-## Getting Started
+A Next.js web app that emulates a mobile pet-care application in the browser.
 
-First, run the development server:
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+Static files are exported to the `out/` directory for Cloudflare Pages.
 
-To learn more about Next.js, take a look at the following resources:
+## Auto-deploy (GitHub Actions)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Every push to `main` triggers a deploy to Cloudflare Pages via `.github/workflows/deploy.yml`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Required GitHub secrets
 
-## Deploy on Vercel
+| Secret | Description |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | API token with **Account → Cloudflare Pages → Edit** |
+| `CLOUDFLARE_ACCOUNT_ID` | Account ID from **Workers & Pages → Overview** |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Create the Pages project (first time only)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Before the first workflow run, create the project in Cloudflare:
+
+```bash
+npx wrangler pages project create mammaly --production-branch=main
+```
+
+Or run `terraform apply` in the `terraform/` directory.
+
+## Terraform
+
+Infrastructure config for Cloudflare Pages lives in `terraform/`. See `terraform/terraform.tfvars.example`.
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+# fill in values, then:
+terraform init
+terraform apply
+```

@@ -1,10 +1,10 @@
 import { Bell, ChevronRight, HelpCircle, LogOut, Shield } from "lucide-react";
 
 const menuItems = [
-  { icon: Bell, label: "Уведомления", badge: "3" },
-  { icon: Shield, label: "Приватность" },
-  { icon: HelpCircle, label: "Помощь" },
-  { icon: LogOut, label: "Выйти", danger: true },
+  { icon: Bell, label: "Notifications", badge: "3" },
+  { icon: Shield, label: "Privacy" },
+  { icon: HelpCircle, label: "Help" },
+  { icon: LogOut, label: "Sign out", danger: true },
 ];
 
 export function ProfileScreen() {
@@ -12,22 +12,22 @@ export function ProfileScreen() {
     <div className="flex flex-col gap-5 px-4 pb-4">
       <section className="flex flex-col items-center pt-2 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 text-3xl font-bold text-white shadow-lg shadow-violet-900/40">
-          А
+          A
         </div>
-        <h1 className="mt-3 text-xl font-bold text-white">Андрей</h1>
-        <p className="text-sm text-zinc-400">andrey@example.com</p>
+        <h1 className="mt-3 text-xl font-bold text-white">Alex</h1>
+        <p className="text-sm text-zinc-400">alex@example.com</p>
         <div className="mt-3 flex gap-6">
           <div>
             <p className="text-lg font-bold text-white">3</p>
-            <p className="text-xs text-zinc-400">Питомца</p>
+            <p className="text-xs text-zinc-400">Pets</p>
           </div>
           <div>
             <p className="text-lg font-bold text-white">12</p>
-            <p className="text-xs text-zinc-400">Записей</p>
+            <p className="text-xs text-zinc-400">Records</p>
           </div>
           <div>
             <p className="text-lg font-bold text-white">7</p>
-            <p className="text-xs text-zinc-400">Дней</p>
+            <p className="text-xs text-zinc-400">Days</p>
           </div>
         </div>
       </section>

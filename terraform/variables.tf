@@ -1,68 +1,68 @@
 variable "cloudflare_api_token" {
-  description = "Cloudflare API Token с правами на Pages (и DNS, если подключаете свой домен)"
+  description = "Cloudflare API token with Pages permissions (and DNS if using a custom domain)"
   type        = string
   sensitive   = true
 }
 
 variable "cloudflare_account_id" {
-  description = "Account ID из Cloudflare Dashboard → Workers & Pages → Overview"
+  description = "Account ID from Cloudflare Dashboard → Workers & Pages → Overview"
   type        = string
 }
 
 variable "project_name" {
-  description = "Имя проекта в Cloudflare Pages"
+  description = "Cloudflare Pages project name"
   type        = string
   default     = "mammaly"
 }
 
 variable "production_branch" {
-  description = "Ветка для production-деплоев"
+  description = "Branch used for production deployments"
   type        = string
   default     = "main"
 }
 
 variable "node_version" {
-  description = "Версия Node.js для сборки на Cloudflare Pages"
+  description = "Node.js version for Cloudflare Pages builds"
   type        = string
   default     = "20"
 }
 
-# --- Git-интеграция (опционально) ---
+# --- Git integration (optional) ---
 
 variable "enable_git_source" {
-  description = "Подключить GitHub-репозиторий для автодеплоя при push"
+  description = "Connect a GitHub repository for deploy-on-push via Cloudflare Pages"
   type        = bool
   default     = true
 }
 
 variable "github_owner" {
-  description = "GitHub org или username (например: my-org)"
+  description = "GitHub organization or username (e.g. my-org)"
   type        = string
   default     = ""
 }
 
 variable "github_repo_name" {
-  description = "Имя репозитория (например: mammaly-hackaton-2)"
+  description = "Repository name (e.g. mammaly-hackaton-2)"
   type        = string
   default     = ""
 }
 
-# --- Кастомный домен (опционально) ---
+# --- Custom domain (optional) ---
 
 variable "custom_domain" {
-  description = "Кастомный домен для Pages (например: app.example.com). Пусто — только *.pages.dev"
+  description = "Custom domain for Pages (e.g. app.example.com). Leave empty to use *.pages.dev only"
   type        = string
   default     = ""
 }
 
 variable "zone_id" {
-  description = "Zone ID домена в Cloudflare (нужен для DNS-записи кастомного домена)"
+  description = "Cloudflare zone ID (required for custom domain DNS record)"
   type        = string
   default     = ""
 }
 
 variable "dns_record_name" {
-  description = "Имя CNAME-записи (поддомен). Например: app для app.example.com"
+  description = "CNAME record name (subdomain). E.g. app for app.example.com"
   type        = string
   default     = ""
 }

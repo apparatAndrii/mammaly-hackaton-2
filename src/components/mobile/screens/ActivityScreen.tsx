@@ -4,12 +4,12 @@ export function ActivityScreen() {
   return (
     <div className="flex flex-col gap-4 px-4 pb-4">
       <section>
-        <h1 className="text-xl font-bold text-white">Активность</h1>
-        <p className="text-sm text-zinc-400">Расписание на сегодня</p>
+        <h1 className="text-xl font-bold text-white">Activity</h1>
+        <p className="text-sm text-zinc-400">Today&apos;s schedule</p>
       </section>
 
       <div className="flex gap-2">
-        {["Сегодня", "Неделя", "Месяц"].map((filter, index) => (
+        {["Today", "Week", "Month"].map((filter, index) => (
           <button
             key={filter}
             type="button"

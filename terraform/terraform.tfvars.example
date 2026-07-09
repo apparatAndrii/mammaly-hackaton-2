@@ -1,15 +1,15 @@
-# Скопируйте в terraform.tfvars и заполните значения.
-# НЕ коммитьте terraform.tfvars — он в .gitignore.
+# Copy to terraform.tfvars and fill in your values.
+# Do NOT commit terraform.tfvars — it is listed in .gitignore.
 
 cloudflare_account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
 
-# GitHub-интеграция (нужна для автодеплоя из репозитория)
+# GitHub integration (for Cloudflare Pages deploy-on-push)
 enable_git_source = true
 github_owner      = "YOUR_GITHUB_USERNAME_OR_ORG"
 github_repo_name  = "mammaly-hackaton-2"
 production_branch = "main"
 
-# Опционально: кастомный домен
+# Optional: custom domain
 # custom_domain   = "app.example.com"
 # zone_id         = "YOUR_ZONE_ID"
 # dns_record_name = "app"
