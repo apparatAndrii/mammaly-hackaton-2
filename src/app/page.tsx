@@ -1,5 +1,10 @@
 import { MobileApp } from "@/components/mobile/MobileApp";
+import { DogProfileProvider } from "@/context/DogProfileContext";
 
 export default function Home() {
-  return <MobileApp />;
+  return (
+    <DogProfileProvider>
+      <MobileApp />
+    </DogProfileProvider>
+  );
 }

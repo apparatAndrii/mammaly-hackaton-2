@@ -1,60 +1,70 @@
-export const pets = [
-  {
-    id: "1",
-    name: "Whiskers",
-    species: "Cat",
-    breed: "British Shorthair",
-    age: "3 years",
-    emoji: "🐱",
-    mood: "happy" as const,
-  },
-  {
-    id: "2",
-    name: "Rex",
-    species: "Dog",
-    breed: "Corgi",
-    age: "5 years",
-    emoji: "🐶",
-    mood: "hungry" as const,
-  },
-  {
-    id: "3",
-    name: "Kiwi",
-    species: "Parrot",
-    breed: "Budgerigar",
-    age: "2 years",
-    emoji: "🦜",
-    mood: "sleepy" as const,
-  },
+import { calculateHealthScore } from "@/lib/health-scoring";
+
+export const dog = {
+  name: "Rex",
+  breed: "Corgi",
+  ageYears: 5,
+};
+
+export const weeklyHealthTrend = [
+  { day: "Mon", score: 72 },
+  { day: "Tue", score: 74 },
+  { day: "Wed", score: 73 },
+  { day: "Thu", score: 75 },
+  { day: "Fri", score: 74 },
+  { day: "Sat", score: 76 },
+  { day: "Sun", score: 75 },
 ];
 
-export const activities = [
+export const weeklyScoreDelta = 3;
+
+export const checkInQuestions = [
   {
-    id: "1",
-    title: "Feeding",
-    time: "08:30",
-    icon: "🍽️",
-    petName: "Whiskers",
+    id: "appetite",
+    question: "How was appetite today?",
+    options: ["Good", "Okay", "Poor"],
   },
   {
-    id: "2",
-    title: "Walk",
-    time: "10:00",
-    icon: "🦮",
-    petName: "Rex",
+    id: "energy",
+    question: "Energy level?",
+    options: ["High", "Normal", "Low"],
   },
   {
-    id: "3",
-    title: "Vet visit",
-    time: "14:00",
-    icon: "🏥",
-    petName: "Rex",
+    id: "concerns",
+    question: "Any concerns?",
+    options: ["None", "Mild", "Notable"],
+  },
+] as const;
+
+export const healthProfile = calculateHealthScore([
+  {
+    id: "weight",
+    label: "Weight",
+    score: 84,
+    insight: "Body condition is within the healthy range.",
   },
   {
-    id: "4",
-    title: "Playtime",
-    time: "18:45",
-    icon: "🎾",
-    petName: "Whiskers",
+    id: "movement",
+    label: "Movement",
+    score: 76,
+    insight: "Daily activity is slightly below the recommended level.",
   },
-];
+  {
+    id: "digestion",
+    label: "Digestion",
+    score: 91,
+    insight: "Stool quality and appetite patterns look stable.",
+  },
+  {
+    id: "cognition",
+    label: "Cognition & energy",
+    score: 69,
+    insight: "Energy dips were noted during the last two weeks.",
+  },
+  {
+    id: "teeth",
+    label: "Teeth",
+    score: 54,
+    insight: "Tartar buildup suggests a dental checkup is due.",
+  },
+]);

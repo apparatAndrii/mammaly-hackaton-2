@@ -23,7 +23,7 @@ export function StatusBar() {
   }, []);
 
   return (
-    <div className="flex h-11 shrink-0 items-end justify-between px-6 pb-1.5 text-[13px] font-semibold text-white">
+    <div className="flex h-11 shrink-0 items-end justify-between px-6 pb-1.5 text-[13px] font-semibold text-zinc-900">
       <span className="tabular-nums">{time || "12:00"}</span>
       <div className="flex items-center gap-1.5">
         <Signal className="h-3.5 w-3.5" strokeWidth={2.5} />

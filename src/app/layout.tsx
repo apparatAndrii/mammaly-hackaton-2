@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Mobile pet care app — web emulation",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Mammaly",
   },
 };
@@ -28,7 +28,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#12121f",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({

@@ -1,79 +1,84 @@
-import { activities, pets } from "@/lib/mock-data";
+"use client";
 
-const moodLabels = {
-  happy: "Happy",
-  sleepy: "Sleepy",
-  hungry: "Hungry",
-} as const;
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { DogHero } from "@/components/mobile/DogHero";
+import { AgeComparisonRow } from "@/components/mobile/home/AgeComparisonRow";
+import { DailyCheckInCard } from "@/components/mobile/home/DailyCheckInCard";
+import { HealthCategoryGrid } from "@/components/mobile/home/HealthCategoryGrid";
+import { MainRecommendation } from "@/components/mobile/home/MainRecommendation";
+import { ProgressTrend } from "@/components/mobile/home/ProgressTrend";
+import { useDogProfile } from "@/context/DogProfileContext";
+import {
+  CHECK_IN_UPDATED_EVENT,
+  getStoredDailyCheckIn,
+  getTodayKey,
+} from "@/lib/daily-checkin";
+import { TEST_DOG_PROFILE } from "@/lib/dog-profile";
+import {
+  ensureHealthProfileInitialized,
+  HEALTH_STATE_UPDATED_EVENT,
+} from "@/lib/health-state";
+import type { HealthScoreResult } from "@/lib/health-scoring";
+import { getNextRecommendation } from "@/lib/recommendations";
 
 export function HomeScreen() {
-  const nextActivity = activities[0];
+  const { profile } = useDogProfile();
+  const activeProfile = profile ?? TEST_DOG_PROFILE;
+  const [healthProfile, setHealthProfile] = useState<HealthScoreResult | null>(
+    null,
+  );
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refreshHomeData = useCallback(() => {
+    setHealthProfile(ensureHealthProfileInitialized());
+    setRefreshKey((current) => current + 1);
+  }, []);
+
+  useEffect(() => {
+    refreshHomeData();
+  }, [refreshHomeData]);
+
+  useEffect(() => {
+    const onUpdate = () => refreshHomeData();
+
+    window.addEventListener(CHECK_IN_UPDATED_EVENT, onUpdate);
+    window.addEventListener(HEALTH_STATE_UPDATED_EVENT, onUpdate);
+    return () => {
+      window.removeEventListener(CHECK_IN_UPDATED_EVENT, onUpdate);
+      window.removeEventListener(HEALTH_STATE_UPDATED_EVENT, onUpdate);
+    };
+  }, [refreshHomeData]);
+
+  const checkInState = useMemo(() => {
+    void refreshKey;
+    const stored = getStoredDailyCheckIn();
+    if (stored?.date === getTodayKey()) return stored;
+    return undefined;
+  }, [refreshKey]);
+
+  const recommendation = useMemo(() => {
+    if (!healthProfile) return null;
+    return getNextRecommendation(healthProfile, checkInState, activeProfile);
+  }, [healthProfile, checkInState, activeProfile]);
+
+  if (!healthProfile || !recommendation) {
+    return null;
+  }
 
   return (
-    <div className="flex flex-col gap-5 px-4 pb-4">
-      <section>
-        <p className="text-sm text-zinc-400">Welcome back 👋</p>
-        <h1 className="mt-1 text-2xl font-bold text-white">Mammaly</h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Pet care in one place
-        </p>
-      </section>
+    <div className="flex min-h-full flex-1 flex-col">
+      <DogHero />
 
-      <section className="rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 p-4 shadow-lg shadow-violet-900/30">
-        <p className="text-xs font-medium uppercase tracking-wide text-white/70">
-          Up next
-        </p>
-        <div className="mt-3 flex items-center gap-3">
-          <span className="text-3xl">{nextActivity.icon}</span>
-          <div>
-            <p className="font-semibold text-white">{nextActivity.title}</p>
-            <p className="text-sm text-white/80">
-              {nextActivity.petName} · {nextActivity.time}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-white">Your pets</h2>
-          <span className="text-xs text-violet-400">{pets.length} total</span>
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {pets.map((pet) => (
-            <article
-              key={pet.id}
-              className="min-w-[140px] shrink-0 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10"
-            >
-              <span className="text-4xl">{pet.emoji}</span>
-              <p className="mt-2 font-semibold text-white">{pet.name}</p>
-              <p className="text-xs text-zinc-400">{pet.breed}</p>
-              <span className="mt-2 inline-block rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-zinc-300">
-                {moodLabels[pet.mood]}
-              </span>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid grid-cols-2 gap-3">
-        {[
-          { label: "Feeding", emoji: "🍽️", count: "2 today" },
-          { label: "Walks", emoji: "🦮", count: "1 today" },
-          { label: "Health", emoji: "💊", count: "All good" },
-          { label: "Reminders", emoji: "🔔", count: "3 active" },
-        ].map((item) => (
-          <button
-            key={item.label}
-            type="button"
-            className="rounded-2xl bg-white/5 p-4 text-left ring-1 ring-white/10 transition active:scale-[0.98]"
-          >
-            <span className="text-2xl">{item.emoji}</span>
-            <p className="mt-2 text-sm font-medium text-white">{item.label}</p>
-            <p className="text-xs text-zinc-400">{item.count}</p>
-          </button>
-        ))}
-      </section>
+      <div className="flex flex-1 flex-col gap-4 px-5 pb-12 pt-2">
+        <AgeComparisonRow profile={activeProfile} />
+        <DailyCheckInCard />
+        <HealthCategoryGrid categories={healthProfile.categories} />
+        <ProgressTrend />
+        <MainRecommendation
+          recommendation={recommendation}
+          status={healthProfile.weakestCategory.status}
+        />
+      </div>
     </div>
   );
 }
