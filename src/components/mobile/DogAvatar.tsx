@@ -16,7 +16,7 @@ type DogAvatarProps = {
 
 export function DogAvatar({
   imageClassName = "h-52 w-52",
-  showLabel = true,
+  showLabel = false,
   className = "",
   photoUrl,
   name = "Dog",
@@ -49,7 +49,11 @@ export function DogAvatar({
           : `${emotion.label}. Tap to change emotion.`
       }
     >
-      <div className={`relative overflow-hidden rounded-full ${imageClassName}`}>
+      <div
+        className={`relative ${imageClassName} ${
+          photoUrl ? "overflow-hidden rounded-full" : ""
+        }`}
+      >
         {photoUrl ? (
           <Image
             src={photoUrl}
