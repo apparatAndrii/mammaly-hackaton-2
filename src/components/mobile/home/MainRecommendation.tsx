@@ -1,19 +1,16 @@
 "use client";
 
 import type { Recommendation } from "@/lib/recommendations";
-import type { HealthStatus } from "@/lib/health-scoring";
 import { getHealthStatusStyles } from "@/lib/health-styles";
 
 type MainRecommendationProps = {
   recommendation: Recommendation;
-  status: HealthStatus;
 };
 
 export function MainRecommendation({
   recommendation,
-  status,
 }: MainRecommendationProps) {
-  const styles = getHealthStatusStyles(status);
+  const styles = getHealthStatusStyles(recommendation.status);
 
   return (
     <section

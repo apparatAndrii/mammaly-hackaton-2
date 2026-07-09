@@ -1,4 +1,4 @@
-import type { DailyCheckInState } from "@/lib/daily-checkin";
+import type { DailyCheckInAnswers } from "@/lib/daily-checkin";
 import type { DogProfile } from "@/lib/dog-profile";
 import type {
   HealthCategory,
@@ -6,6 +6,11 @@ import type {
   HealthScoreResult,
   HealthStatus,
 } from "@/lib/health-scoring";
+
+export type RecommendationInput = {
+  answers?: DailyCheckInAnswers;
+  completedToday?: boolean;
+};
 
 export type Recommendation = {
   title: string;
@@ -94,23 +99,27 @@ function getCategoryById(
 
 function pickFocusCategory(
   profile: HealthScoreResult,
-  checkIn?: DailyCheckInState,
+  checkIn?: RecommendationInput,
 ): HealthCategory {
   let focusId = profile.weakestCategory.id;
-  const answers = checkIn?.answers;
+  const answers = checkIn?.completedToday ? checkIn.answers : undefined;
 
   if (answers?.appetite === "Poor") {
     const digestion = getCategoryById(profile, "digestion");
     if (digestion.status !== "green") {
       focusId = "digestion";
     }
-  } else if (answers?.energy === "Low") {
+  } else if (answers?.activity === "Low") {
+    focusId = "movement";
+  } else if (answers?.energy === "Tired") {
     const cognition = getCategoryById(profile, "cognition");
     const movement = getCategoryById(profile, "movement");
     focusId =
       cognition.score <= movement.score ? "cognition" : "movement";
-  } else if (answers?.concerns === "Notable") {
-    focusId = profile.weakestCategory.id;
+  } else if (answers?.teeth === "Uncomfortable") {
+    focusId = "teeth";
+  } else if (answers?.weight === "Heavy") {
+    focusId = "weight";
   }
 
   return getCategoryById(profile, focusId);
@@ -119,25 +128,29 @@ function pickFocusCategory(
 function refineAction(
   category: HealthCategory,
   baseAction: string,
-  checkIn?: DailyCheckInState,
+  checkIn?: RecommendationInput,
 ): string {
-  const answers = checkIn?.answers;
+  const answers = checkIn?.completedToday ? checkIn.answers : undefined;
   if (!answers) return baseAction;
 
   if (category.id === "digestion" && answers.appetite === "Poor") {
     return "Log tonight's meal and stool quality to spot digestion patterns";
   }
 
-  if (category.id === "cognition" && answers.energy === "Low") {
+  if (category.id === "cognition" && answers.energy === "Tired") {
     return "Try a 10-minute scent puzzle before dinner to boost alertness";
   }
 
-  if (category.id === "movement" && answers.energy === "Low") {
+  if (category.id === "movement" && answers.activity === "Low") {
     return "Add a gentle 15-minute evening walk today";
   }
 
-  if (answers.concerns === "Notable" && category.status === "red") {
-    return baseAction;
+  if (category.id === "teeth" && answers.teeth === "Uncomfortable") {
+    return "Schedule a dental checkup this week";
+  }
+
+  if (category.id === "weight" && answers.weight === "Heavy") {
+    return "Measure portions at the next two meals and log them";
   }
 
   return baseAction;
@@ -146,14 +159,17 @@ function refineAction(
 function shouldSuggestSupplement(
   category: HealthCategory,
   rule: CategoryRule,
-  checkIn?: DailyCheckInState,
+  checkIn?: RecommendationInput,
 ): boolean {
   if (!rule.supplementNote) return false;
 
-  const answers = checkIn?.answers;
+  const answers = checkIn?.completedToday ? checkIn.answers : undefined;
 
-  if (category.id === "teeth" && category.score < rule.supplementThreshold) {
-    return true;
+  if (category.id === "teeth") {
+    if (category.score < rule.supplementThreshold) return true;
+    if (answers?.teeth === "Uncomfortable" || answers?.teeth === "Okay") {
+      return category.score < 75;
+    }
   }
 
   if (category.id === "digestion") {
@@ -165,23 +181,20 @@ function shouldSuggestSupplement(
 
   if (category.id === "cognition") {
     if (category.score < rule.supplementThreshold) return true;
-    if (answers?.energy === "Low") return true;
+    if (answers?.energy === "Tired") return true;
   }
 
   return false;
 }
 
-function personalizeTitle(
-  title: string,
-  dogProfile?: DogProfile,
-): string {
+function personalizeTitle(title: string, dogProfile?: DogProfile): string {
   if (!dogProfile?.name) return title;
   return `${dogProfile.name}: ${title}`;
 }
 
 export function getNextRecommendation(
   healthProfile: HealthScoreResult,
-  dailyCheckInState?: DailyCheckInState,
+  dailyCheckInState?: RecommendationInput,
   dogProfile?: DogProfile,
 ): Recommendation {
   const focusCategory = pickFocusCategory(healthProfile, dailyCheckInState);
@@ -192,6 +205,7 @@ export function getNextRecommendation(
   const recommendation: Recommendation = {
     title: personalizeTitle(rule.title, dogProfile),
     action,
+    status: focusCategory.status,
   };
 
   if (shouldSuggestSupplement(focusCategory, rule, dailyCheckInState)) {

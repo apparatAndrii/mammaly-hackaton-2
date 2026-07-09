@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { DogAvatar } from "@/components/mobile/DogAvatar";
+import { useDailyCheckIn } from "@/context/DailyCheckInContext";
 import { useDogProfile } from "@/context/DogProfileContext";
 import { getProfilePhotoUrl, TEST_DOG_PROFILE } from "@/lib/dog-profile";
 
 export function DogHero() {
   const { profile } = useDogProfile();
+  const { emotion } = useDailyCheckIn();
   const activeProfile = profile ?? TEST_DOG_PROFILE;
 
   return (
@@ -28,6 +30,7 @@ export function DogHero() {
           className="relative z-10"
           photoUrl={getProfilePhotoUrl(activeProfile)}
           name={activeProfile.name}
+          emotionId={getProfilePhotoUrl(activeProfile) ? undefined : emotion}
         />
       </div>
     </section>

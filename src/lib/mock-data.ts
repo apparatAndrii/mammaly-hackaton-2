@@ -18,24 +18,6 @@ export const weeklyHealthTrend = [
 
 export const weeklyScoreDelta = 3;
 
-export const checkInQuestions = [
-  {
-    id: "appetite",
-    question: "How was appetite today?",
-    options: ["Good", "Okay", "Poor"],
-  },
-  {
-    id: "energy",
-    question: "Energy level?",
-    options: ["High", "Normal", "Low"],
-  },
-  {
-    id: "concerns",
-    question: "Any concerns?",
-    options: ["None", "Mild", "Notable"],
-  },
-] as const;
-
 export const healthProfile = calculateHealthScore([
   {
     id: "weight",

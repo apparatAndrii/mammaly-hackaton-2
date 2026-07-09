@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import type { DogEmotionId } from "@/lib/dog-emotions";
 import { dogEmotions } from "@/lib/dog-emotions";
 
 type DogAvatarProps = {
@@ -10,6 +11,7 @@ type DogAvatarProps = {
   className?: string;
   photoUrl?: string;
   name?: string;
+  emotionId?: DogEmotionId;
 };
 
 export function DogAvatar({
@@ -18,10 +20,17 @@ export function DogAvatar({
   className = "",
   photoUrl,
   name = "Dog",
+  emotionId,
 }: DogAvatarProps) {
-  const [index, setIndex] = useState(0);
+  const defaultIndex = emotionId
+    ? Math.max(
+        0,
+        dogEmotions.findIndex((item) => item.id === emotionId),
+      )
+    : 0;
+  const [index, setIndex] = useState(defaultIndex);
   const [animating, setAnimating] = useState(false);
-  const emotion = dogEmotions[index];
+  const emotion = dogEmotions[index] ?? dogEmotions[0];
 
   const handleClick = () => {
     if (photoUrl) return;
@@ -40,9 +49,7 @@ export function DogAvatar({
           : `${emotion.label}. Tap to change emotion.`
       }
     >
-      <div
-        className={`relative ${photoUrl ? "overflow-hidden rounded-full" : ""} ${imageClassName}`}
-      >
+      <div className={`relative overflow-hidden rounded-full ${imageClassName}`}>
         {photoUrl ? (
           <Image
             src={photoUrl}

@@ -87,6 +87,7 @@ export type DailyCheckInPersistedState = {
   healthResult: HealthScoreResult;
 };
 
+
 function getTodayKey(): string {
   return new Date().toISOString().slice(0, 10);
 }
