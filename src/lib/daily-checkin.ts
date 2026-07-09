@@ -6,7 +6,7 @@ import {
   type HealthStatus,
 } from "@/lib/health-scoring";
 import type { DogEmotionId } from "@/lib/dog-emotions";
-import { healthProfile as baselineHealthProfile } from "@/lib/mock-data";
+import { healthProfile as baselineHealthProfile, STREAK_SEED } from "@/lib/mock-data";
 
 export const DAILY_CHECKIN_STORAGE_KEY = "mammaly-daily-checkin";
 
@@ -23,51 +23,51 @@ export const checkInQuestions: CheckInQuestion[] = [
   {
     id: "appetite",
     categoryId: "digestion",
-    question: "How was appetite today?",
+    question: "Wie war der Appetit heute?",
     options: [
-      { label: "Good", quality: "good" },
+      { label: "Gut", quality: "good" },
       { label: "Okay", quality: "neutral" },
-      { label: "Poor", quality: "poor" },
+      { label: "Schlecht", quality: "poor" },
     ],
   },
   {
     id: "activity",
     categoryId: "movement",
-    question: "Activity level today?",
+    question: "Wie aktiv war dein Hund heute?",
     options: [
-      { label: "Active", quality: "good" },
+      { label: "Sehr aktiv", quality: "good" },
       { label: "Normal", quality: "neutral" },
-      { label: "Low", quality: "poor" },
+      { label: "Wenig", quality: "poor" },
     ],
   },
   {
     id: "energy",
     categoryId: "cognition",
-    question: "Energy and mood?",
+    question: "Energie und Stimmung?",
     options: [
-      { label: "Bright", quality: "good" },
+      { label: "Munter", quality: "good" },
       { label: "Normal", quality: "neutral" },
-      { label: "Tired", quality: "poor" },
+      { label: "Müde", quality: "poor" },
     ],
   },
   {
     id: "weight",
     categoryId: "weight",
-    question: "Weight feeling today?",
+    question: "Gewichtsgefühl heute?",
     options: [
-      { label: "Healthy", quality: "good" },
-      { label: "Uncertain", quality: "neutral" },
-      { label: "Heavy", quality: "poor" },
+      { label: "Gesund", quality: "good" },
+      { label: "Unsicher", quality: "neutral" },
+      { label: "Zu viel", quality: "poor" },
     ],
   },
   {
     id: "teeth",
     categoryId: "teeth",
-    question: "Breath and teeth comfort?",
+    question: "Atem und Zähne?",
     options: [
-      { label: "Fresh", quality: "good" },
+      { label: "Frisch", quality: "good" },
       { label: "Okay", quality: "neutral" },
-      { label: "Uncomfortable", quality: "poor" },
+      { label: "Unangenehm", quality: "poor" },
     ],
   },
 ];
@@ -85,11 +85,18 @@ export type DailyCheckInPersistedState = {
   completedToday: boolean;
   todayAnswers: DailyCheckInAnswers;
   healthResult: HealthScoreResult;
+  streakDays?: number;
 };
 
 
 function getTodayKey(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function getYesterdayKey(): string {
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().slice(0, 10);
 }
 
 function clampScore(score: number): number {
@@ -100,10 +107,11 @@ export function getBaselineHealthResult(): HealthScoreResult {
   return baselineHealthProfile;
 }
 
-function getQualityForAnswer(
+export function getAnswerQuality(
   questionId: string,
-  answerLabel: string,
+  answerLabel: string | undefined,
 ): AnswerQuality {
+  if (!answerLabel) return "neutral";
   const question = checkInQuestions.find((item) => item.id === questionId);
   const option = question?.options.find((item) => item.label === answerLabel);
   return option?.quality ?? "neutral";
@@ -122,7 +130,7 @@ export function applyCheckInAnswers(
     const answerLabel = answers[relatedQuestion.id];
     if (!answerLabel) return category;
 
-    const quality = getQualityForAnswer(relatedQuestion.id, answerLabel);
+    const quality = getAnswerQuality(relatedQuestion.id, answerLabel);
     const delta = scoreDeltaByQuality[quality];
 
     return {
@@ -175,6 +183,10 @@ export function isCheckInCompletedToday(state: DailyCheckInPersistedState | null
   return state.lastCheckInDate === getTodayKey() && state.completedToday;
 }
 
+export function getStreakDays(state: DailyCheckInPersistedState | null): number {
+  return state?.streakDays ?? STREAK_SEED;
+}
+
 export function getStoredDailyCheckInState(): DailyCheckInPersistedState | null {
   if (typeof window === "undefined") return null;
 
@@ -191,18 +203,31 @@ export function saveDailyCheckInState(state: DailyCheckInPersistedState): void {
   localStorage.setItem(DAILY_CHECKIN_STORAGE_KEY, JSON.stringify(state));
 }
 
+export function clearDailyCheckInStorage(): void {
+  localStorage.removeItem(DAILY_CHECKIN_STORAGE_KEY);
+}
+
 export function createCheckInStateFromAnswers(
   answers: DailyCheckInAnswers,
   baseResult?: HealthScoreResult,
 ): DailyCheckInPersistedState {
   const startingResult = baseResult ?? getBaselineHealthResult();
   const healthResult = applyCheckInAnswers(startingResult, answers);
+  const previous = getStoredDailyCheckInState();
+
+  let streakDays = getStreakDays(previous);
+  if (!previous || previous.lastCheckInDate === getYesterdayKey()) {
+    streakDays += 1;
+  } else if (previous.lastCheckInDate !== getTodayKey()) {
+    streakDays = 1;
+  }
 
   return {
     lastCheckInDate: getTodayKey(),
     completedToday: true,
     todayAnswers: answers,
     healthResult,
+    streakDays,
   };
 }
 

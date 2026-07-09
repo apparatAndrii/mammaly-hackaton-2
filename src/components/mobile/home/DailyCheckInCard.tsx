@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronRight } from "lucide-react";
+import { Check, ChevronRight, PawPrint } from "lucide-react";
 import { useState } from "react";
 import { DailyCheckInFlow } from "@/components/mobile/home/DailyCheckInFlow";
 import { useDailyCheckIn } from "@/context/DailyCheckInContext";
@@ -20,39 +20,54 @@ export function DailyCheckInCard() {
         type="button"
         onClick={openCheckIn}
         disabled={completedToday}
-        className={`flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3.5 text-left transition ${
-          completedToday ? "cursor-default" : "active:scale-[0.99]"
+        className={`flex w-full items-center justify-between rounded-3xl px-4 py-4 text-left transition ${
+          completedToday
+            ? "cursor-default bg-moss"
+            : "bg-forest active:scale-[0.99]"
         }`}
       >
         <div className="flex items-center gap-3">
           <div
-            className={`flex h-9 w-9 items-center justify-center rounded-full ${
-              completedToday ? "bg-emerald-50" : "bg-zinc-100"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${
+              completedToday ? "bg-forest/10" : "bg-white/15"
             }`}
           >
             {completedToday ? (
-              <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
+              <Check className="h-4.5 w-4.5 text-forest" strokeWidth={2.5} />
             ) : (
-              <span className="h-2 w-2 rounded-full bg-zinc-400" />
+              <PawPrint className="h-4.5 w-4.5 text-white" strokeWidth={2} />
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-zinc-900">Daily check-in</p>
-            <p className="text-xs text-zinc-500">
-              {completedToday ? "Completed today" : "Not done yet"} · ~20 sec
+            <p
+              className={`text-sm font-semibold ${
+                completedToday ? "text-forest" : "text-white"
+              }`}
+            >
+              Daily Check-in
+            </p>
+            <p
+              className={`text-xs ${
+                completedToday ? "text-forest/70" : "text-white/70"
+              }`}
+            >
+              {completedToday
+                ? "Heute erledigt — bis morgen!"
+                : "Wie war der Tag? · 30 Sekunden"}
             </p>
           </div>
         </div>
         {!completedToday && (
-          <ChevronRight className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
+          <ChevronRight className="h-4 w-4 text-white/80" strokeWidth={2.5} />
         )}
       </button>
 
-      <DailyCheckInFlow
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onComplete={completeCheckIn}
-      />
+      {modalOpen && (
+        <DailyCheckInFlow
+          onClose={() => setModalOpen(false)}
+          onComplete={completeCheckIn}
+        />
+      )}
     </>
   );
 }

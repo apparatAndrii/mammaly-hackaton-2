@@ -21,7 +21,7 @@ export const TEST_DOG_PROFILE: DogProfile = {
   ageYears: mockDog.ageYears,
   sex: "male",
   neutered: true,
-  weightKg: 12.5,
+  weightKg: 9.5,
   photos: [],
 };
 
@@ -75,6 +75,11 @@ export function isOnboardingCompleted(): boolean {
 export function saveDogProfile(profile: DogProfile): void {
   localStorage.setItem(DOG_PROFILE_STORAGE_KEY, JSON.stringify(profile));
   localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
+}
+
+export function clearDogProfileStorage(): void {
+  localStorage.removeItem(DOG_PROFILE_STORAGE_KEY);
+  localStorage.removeItem(ONBOARDING_COMPLETED_KEY);
 }
 
 export function fileToDataUrl(file: File): Promise<string> {

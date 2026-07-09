@@ -12,10 +12,13 @@ import {
 import {
   buildNeutralAnswers,
   buildTestAnswers,
+  clearDailyCheckInStorage,
   createCheckInStateFromAnswers,
+  getBaselineHealthResult,
   getEmotionForOverallScore,
   getInitialHealthResult,
   getStoredDailyCheckInState,
+  getStreakDays,
   isCheckInCompletedToday,
   saveDailyCheckInState,
   type DailyCheckInAnswers,
@@ -29,10 +32,12 @@ type DailyCheckInContextValue = {
   emotion: DogEmotionId;
   completedToday: boolean;
   isHydrated: boolean;
+  streakDays: number;
   todayAnswers: DailyCheckInAnswers;
   completeCheckIn: (answers: DailyCheckInAnswers) => void;
   skipWithNeutralAnswers: () => void;
   useTestAnswers: () => void;
+  resetCheckIn: () => void;
 };
 
 const DailyCheckInContext = createContext<DailyCheckInContextValue | null>(null);
@@ -43,6 +48,7 @@ export function DailyCheckInProvider({ children }: { children: ReactNode }) {
   );
   const [completedToday, setCompletedToday] = useState(false);
   const [todayAnswers, setTodayAnswers] = useState<DailyCheckInAnswers>({});
+  const [streakDays, setStreakDays] = useState(getStreakDays(null));
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -51,6 +57,7 @@ export function DailyCheckInProvider({ children }: { children: ReactNode }) {
       setHealthResult(stored.healthResult);
       setTodayAnswers(stored.todayAnswers);
       setCompletedToday(isCheckInCompletedToday(stored));
+      setStreakDays(getStreakDays(stored));
     }
     setIsHydrated(true);
   }, []);
@@ -60,6 +67,7 @@ export function DailyCheckInProvider({ children }: { children: ReactNode }) {
     setHealthResult(state.healthResult);
     setTodayAnswers(state.todayAnswers);
     setCompletedToday(state.completedToday);
+    setStreakDays(getStreakDays(state));
   }, []);
 
   const completeCheckIn = useCallback(
@@ -78,6 +86,14 @@ export function DailyCheckInProvider({ children }: { children: ReactNode }) {
     completeCheckIn(buildTestAnswers());
   }, [completeCheckIn]);
 
+  const resetCheckIn = useCallback(() => {
+    clearDailyCheckInStorage();
+    setHealthResult(getBaselineHealthResult());
+    setTodayAnswers({});
+    setCompletedToday(false);
+    setStreakDays(getStreakDays(null));
+  }, []);
+
   const emotion = useMemo(
     () => getEmotionForOverallScore(healthResult.overallScore),
     [healthResult.overallScore],
@@ -89,20 +105,24 @@ export function DailyCheckInProvider({ children }: { children: ReactNode }) {
       emotion,
       completedToday,
       isHydrated,
+      streakDays,
       todayAnswers,
       completeCheckIn,
       skipWithNeutralAnswers,
       useTestAnswers,
+      resetCheckIn,
     }),
     [
       healthResult,
       emotion,
       completedToday,
       isHydrated,
+      streakDays,
       todayAnswers,
       completeCheckIn,
       skipWithNeutralAnswers,
       useTestAnswers,
+      resetCheckIn,
     ],
   );
 

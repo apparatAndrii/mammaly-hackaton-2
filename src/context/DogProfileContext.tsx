@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  clearDogProfileStorage,
   getStoredDogProfile,
   isOnboardingCompleted,
   saveDogProfile,
@@ -23,6 +24,7 @@ type DogProfileContextValue = {
   isHydrated: boolean;
   completeOnboarding: (profile: DogProfile) => void;
   skipWithTestData: () => void;
+  resetOnboarding: () => void;
 };
 
 const DogProfileContext = createContext<DogProfileContextValue | null>(null);
@@ -48,6 +50,12 @@ export function DogProfileProvider({ children }: { children: ReactNode }) {
     completeOnboarding(TEST_DOG_PROFILE);
   }, [completeOnboarding]);
 
+  const resetOnboarding = useCallback(() => {
+    clearDogProfileStorage();
+    setProfile(null);
+    setOnboardingCompleted(false);
+  }, []);
+
   const value = useMemo(
     () => ({
       profile,
@@ -55,8 +63,16 @@ export function DogProfileProvider({ children }: { children: ReactNode }) {
       isHydrated,
       completeOnboarding,
       skipWithTestData,
+      resetOnboarding,
     }),
-    [profile, onboardingCompleted, isHydrated, completeOnboarding, skipWithTestData],
+    [
+      profile,
+      onboardingCompleted,
+      isHydrated,
+      completeOnboarding,
+      skipWithTestData,
+      resetOnboarding,
+    ],
   );
 
   return (

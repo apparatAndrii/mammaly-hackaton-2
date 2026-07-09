@@ -1,4 +1,4 @@
-import type { DailyCheckInAnswers } from "@/lib/daily-checkin";
+import { getAnswerQuality, type DailyCheckInAnswers } from "@/lib/daily-checkin";
 import type { DogProfile } from "@/lib/dog-profile";
 import type {
   HealthCategory,
@@ -13,6 +13,8 @@ export type RecommendationInput = {
 };
 
 export type Recommendation = {
+  categoryId: HealthCategoryId;
+  categoryLabel: string;
   title: string;
   action: string;
   supplementNote?: string;
@@ -26,64 +28,82 @@ type CategoryRule = {
     yellow: string;
     green: string;
   };
+  /** Verfeinerte Aktion, wenn der heutige Check-in hier "poor" meldet */
+  poorCheckInAction?: string;
   supplementThreshold: number;
   supplementNote: string;
 };
 
 const CATEGORY_RULES: Record<HealthCategoryId, CategoryRule> = {
   teeth: {
-    title: "Dental care",
+    title: "Zahnpflege",
     actions: {
-      red: "Schedule a dental checkup this week",
-      yellow: "Brush teeth tonight and check for gum redness",
-      green: "Keep up weekly tooth brushing",
+      red: "Diese Woche einen Zahn-Check beim Tierarzt vereinbaren",
+      yellow: "Heute Abend Zähne putzen und Zahnfleisch prüfen",
+      green: "Wöchentliches Zähneputzen beibehalten",
     },
+    poorCheckInAction: "Diese Woche einen Zahn-Check beim Tierarzt vereinbaren",
     supplementThreshold: 65,
     supplementNote:
-      "Consider Mammaly dental support as part of this week's dental care plan.",
+      "Passend dazu: mammaly Zahnpflege-Snack als Teil des Wochenplans — kein Muss für den Score.",
   },
   movement: {
-    title: "Daily movement",
+    title: "Tägliche Bewegung",
     actions: {
-      red: "Add a 15-minute evening walk today",
-      yellow: "Add a 10-minute play session before dinner",
-      green: "Maintain today's walk routine",
+      red: "Heute eine ruhige 15-Minuten-Abendrunde einplanen",
+      yellow: "Vor dem Abendessen 10 Minuten Spielzeit einbauen",
+      green: "Die heutige Spazier-Routine beibehalten",
     },
+    poorCheckInAction: "Heute eine ruhige 15-Minuten-Abendrunde einplanen",
     supplementThreshold: Infinity,
     supplementNote: "",
   },
   digestion: {
-    title: "Digestion tracking",
+    title: "Verdauung im Blick",
     actions: {
-      red: "Log meals for 3 days to track digestion patterns",
-      yellow: "Note stool quality after tonight's meal",
-      green: "Continue logging meals twice this week",
+      red: "Mahlzeiten 3 Tage lang protokollieren, um Muster zu erkennen",
+      yellow: "Nach dem Abendessen die Kotqualität notieren",
+      green: "Mahlzeiten diese Woche zweimal protokollieren",
     },
+    poorCheckInAction:
+      "Heutige Mahlzeit und Kotqualität notieren, um Muster zu erkennen",
     supplementThreshold: 75,
     supplementNote:
-      "Mammaly digestive support may help while you track patterns this week.",
+      "Passend dazu: mammaly Darm-Support kann die Beobachtungswoche begleiten.",
   },
   cognition: {
-    title: "Mental stimulation",
+    title: "Kopf-Training",
     actions: {
-      red: "Try a 10-minute scent puzzle before dinner tonight",
-      yellow: "Add one short training game to today's routine",
-      green: "Keep daily enrichment sessions going",
+      red: "Heute vor dem Abendessen ein 10-Minuten-Schnüffelspiel testen",
+      yellow: "Ein kurzes Trainingsspiel in die Tagesroutine einbauen",
+      green: "Tägliche Beschäftigungseinheiten beibehalten",
     },
+    poorCheckInAction:
+      "Ein 10-Minuten-Schnüffelspiel vor dem Abendessen für mehr Aufmerksamkeit",
     supplementThreshold: 70,
     supplementNote:
-      "Mammaly cognitive support can complement tonight's enrichment plan.",
+      "Passend dazu: mammaly Vital-Support kann das Kopf-Training ergänzen.",
   },
   weight: {
-    title: "Weight management",
+    title: "Gewicht im Griff",
     actions: {
-      red: "Measure portions at the next two meals and log them",
-      yellow: "Weigh at your next vet visit or with a home scale",
-      green: "Continue current feeding portions",
+      red: "Portionen der nächsten zwei Mahlzeiten abmessen und notieren",
+      yellow: "Beim nächsten Tierarztbesuch oder zu Hause wiegen",
+      green: "Aktuelle Futterportionen beibehalten",
     },
+    poorCheckInAction:
+      "Portionen der nächsten zwei Mahlzeiten abmessen und notieren",
     supplementThreshold: Infinity,
     supplementNote: "",
   },
+};
+
+const QUESTION_TO_CATEGORY: Record<string, HealthCategoryId> = {
+  appetite: "digestion",
+  activity: "movement",
+  energy: "cognition",
+  weight: "weight",
+  teeth: "teeth",
 };
 
 function getCategoryById(
@@ -97,63 +117,34 @@ function getCategoryById(
   return category;
 }
 
+function getTodaysPoorCategories(
+  checkIn?: RecommendationInput,
+): HealthCategoryId[] {
+  if (!checkIn?.completedToday || !checkIn.answers) return [];
+
+  return Object.entries(QUESTION_TO_CATEGORY)
+    .filter(
+      ([questionId]) =>
+        getAnswerQuality(questionId, checkIn.answers?.[questionId]) === "poor",
+    )
+    .map(([, categoryId]) => categoryId);
+}
+
 function pickFocusCategory(
   profile: HealthScoreResult,
   checkIn?: RecommendationInput,
 ): HealthCategory {
-  let focusId = profile.weakestCategory.id;
-  const answers = checkIn?.completedToday ? checkIn.answers : undefined;
+  const poorCategories = getTodaysPoorCategories(checkIn);
 
-  if (answers?.appetite === "Poor") {
-    const digestion = getCategoryById(profile, "digestion");
-    if (digestion.status !== "green") {
-      focusId = "digestion";
-    }
-  } else if (answers?.activity === "Low") {
-    focusId = "movement";
-  } else if (answers?.energy === "Tired") {
-    const cognition = getCategoryById(profile, "cognition");
-    const movement = getCategoryById(profile, "movement");
-    focusId =
-      cognition.score <= movement.score ? "cognition" : "movement";
-  } else if (answers?.teeth === "Uncomfortable") {
-    focusId = "teeth";
-  } else if (answers?.weight === "Heavy") {
-    focusId = "weight";
+  // Heutige Auffälligkeit gewinnt; bei mehreren die mit dem niedrigsten Score.
+  if (poorCategories.length > 0) {
+    const candidates = poorCategories.map((id) => getCategoryById(profile, id));
+    return candidates.reduce((weakest, current) =>
+      current.score < weakest.score ? current : weakest,
+    );
   }
 
-  return getCategoryById(profile, focusId);
-}
-
-function refineAction(
-  category: HealthCategory,
-  baseAction: string,
-  checkIn?: RecommendationInput,
-): string {
-  const answers = checkIn?.completedToday ? checkIn.answers : undefined;
-  if (!answers) return baseAction;
-
-  if (category.id === "digestion" && answers.appetite === "Poor") {
-    return "Log tonight's meal and stool quality to spot digestion patterns";
-  }
-
-  if (category.id === "cognition" && answers.energy === "Tired") {
-    return "Try a 10-minute scent puzzle before dinner to boost alertness";
-  }
-
-  if (category.id === "movement" && answers.activity === "Low") {
-    return "Add a gentle 15-minute evening walk today";
-  }
-
-  if (category.id === "teeth" && answers.teeth === "Uncomfortable") {
-    return "Schedule a dental checkup this week";
-  }
-
-  if (category.id === "weight" && answers.weight === "Heavy") {
-    return "Measure portions at the next two meals and log them";
-  }
-
-  return baseAction;
+  return profile.weakestCategory;
 }
 
 function shouldSuggestSupplement(
@@ -162,34 +153,10 @@ function shouldSuggestSupplement(
   checkIn?: RecommendationInput,
 ): boolean {
   if (!rule.supplementNote) return false;
+  if (category.score < rule.supplementThreshold) return true;
 
-  const answers = checkIn?.completedToday ? checkIn.answers : undefined;
-
-  if (category.id === "teeth") {
-    if (category.score < rule.supplementThreshold) return true;
-    if (answers?.teeth === "Uncomfortable" || answers?.teeth === "Okay") {
-      return category.score < 75;
-    }
-  }
-
-  if (category.id === "digestion") {
-    if (category.score < rule.supplementThreshold) return true;
-    if (answers?.appetite === "Poor" || answers?.appetite === "Okay") {
-      return category.score < 85;
-    }
-  }
-
-  if (category.id === "cognition") {
-    if (category.score < rule.supplementThreshold) return true;
-    if (answers?.energy === "Tired") return true;
-  }
-
-  return false;
-}
-
-function personalizeTitle(title: string, dogProfile?: DogProfile): string {
-  if (!dogProfile?.name) return title;
-  return `${dogProfile.name}: ${title}`;
+  const poorToday = getTodaysPoorCategories(checkIn).includes(category.id);
+  return poorToday && category.score < rule.supplementThreshold + 10;
 }
 
 export function getNextRecommendation(
@@ -199,11 +166,18 @@ export function getNextRecommendation(
 ): Recommendation {
   const focusCategory = pickFocusCategory(healthProfile, dailyCheckInState);
   const rule = CATEGORY_RULES[focusCategory.id];
-  const baseAction = rule.actions[focusCategory.status];
-  const action = refineAction(focusCategory, baseAction, dailyCheckInState);
+  const poorToday = getTodaysPoorCategories(dailyCheckInState).includes(
+    focusCategory.id,
+  );
+  const action =
+    poorToday && rule.poorCheckInAction
+      ? rule.poorCheckInAction
+      : rule.actions[focusCategory.status];
 
   const recommendation: Recommendation = {
-    title: personalizeTitle(rule.title, dogProfile),
+    categoryId: focusCategory.id,
+    categoryLabel: focusCategory.label,
+    title: dogProfile?.name ? `${dogProfile.name}: ${rule.title}` : rule.title,
     action,
     status: focusCategory.status,
   };

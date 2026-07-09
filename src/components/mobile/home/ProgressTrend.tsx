@@ -1,53 +1,79 @@
 "use client";
 
-import { weeklyHealthTrend, weeklyScoreDelta } from "@/lib/mock-data";
-import { getHealthStatusStyles } from "@/lib/health-styles";
-import { getHealthStatus } from "@/lib/health-scoring";
+import { useDailyCheckIn } from "@/context/DailyCheckInContext";
+import {
+  formatDE,
+  getBioAgeHistory,
+  type BioAgePoint,
+} from "@/lib/dog-biological-age";
+import type { DogProfile } from "@/lib/dog-profile";
+
+type ProgressTrendProps = {
+  profile: DogProfile;
+  expanded?: boolean;
+};
 
 function buildSparklinePath(
-  scores: number[],
+  values: number[],
   width: number,
   height: number,
 ): string {
-  if (scores.length === 0) return "";
+  if (values.length === 0) return "";
 
-  const min = Math.min(...scores) - 2;
-  const max = Math.max(...scores) + 2;
+  const min = Math.min(...values) - 0.1;
+  const max = Math.max(...values) + 0.1;
   const range = max - min || 1;
 
-  const points = scores.map((score, index) => {
-    const x = (index / (scores.length - 1)) * width;
-    const y = height - ((score - min) / range) * height;
+  const points = values.map((value, index) => {
+    const x = (index / (values.length - 1)) * width;
+    const y = height - ((value - min) / range) * height;
     return `${x},${y}`;
   });
 
   return `M ${points.join(" L ")}`;
 }
 
-export function ProgressTrend() {
-  const scores = weeklyHealthTrend.map((point) => point.score);
-  const latestScore = scores[scores.length - 1] ?? 0;
-  const status = getHealthStatus(latestScore);
-  const styles = getHealthStatusStyles(status);
-  const path = buildSparklinePath(scores, 240, 48);
+export function ProgressTrend({ profile, expanded = false }: ProgressTrendProps) {
+  const { healthResult } = useDailyCheckIn();
+  const history: BioAgePoint[] = getBioAgeHistory(
+    profile,
+    healthResult.overallScore,
+  );
+
+  const values = history.map((point) => point.biologicalYears);
+  const first = values[0];
+  const last = values[values.length - 1];
+  const delta = Math.round((last - first) * 10) / 10;
+  const improved = delta < 0;
+
+  const height = expanded ? 72 : 48;
+  const path = buildSparklinePath(values, 240, height);
 
   return (
-    <section className="w-full rounded-2xl border border-zinc-100 bg-white px-4 py-3.5">
+    <section className="w-full rounded-3xl border border-cream-deep bg-paper px-5 py-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-400">
-            Progress
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-olive">
+            Verlauf
           </p>
-          <p className="mt-1 text-sm text-zinc-600">Health score · 7 days</p>
+          <p className="mt-1 text-sm text-ink/70">
+            Biologisches Alter · 3 Wochen
+          </p>
         </div>
-        <p className={`text-sm font-semibold ${styles.text}`}>
-          +{weeklyScoreDelta} pts this week
-        </p>
+        <span
+          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            improved ? "bg-moss text-forest" : "bg-red-50 text-red-700"
+          }`}
+        >
+          {improved ? "−" : "+"}
+          {formatDE(Math.abs(delta))} J.
+        </span>
       </div>
 
       <svg
-        viewBox="0 0 240 48"
-        className="mt-3 h-12 w-full"
+        viewBox={`0 0 240 ${height}`}
+        className="mt-3 w-full"
+        style={{ height }}
         aria-hidden="true"
       >
         <path
@@ -57,15 +83,21 @@ export function ProgressTrend() {
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={styles.text}
+          className="text-forest"
         />
       </svg>
 
-      <div className="mt-2 flex justify-between text-[10px] text-zinc-400">
-        {weeklyHealthTrend.map((point) => (
-          <span key={point.day}>{point.day}</span>
-        ))}
+      <div className="mt-2 flex justify-between text-[10px] text-olive">
+        <span>{history[0].label}</span>
+        <span>{history[history.length - 1].label}</span>
       </div>
+
+      {expanded && (
+        <p className="mt-3 border-t border-cream-deep pt-3 text-xs leading-5 text-olive">
+          Jeder Check-in aktualisiert die Kategorie-Scores — und damit das
+          Alterstempo. Kleine Routinen, sichtbarer Effekt.
+        </p>
+      )}
     </section>
   );
 }

@@ -23,9 +23,9 @@ export type HealthScoreResult = {
 };
 
 export const healthStatusLabels: Record<HealthStatus, string> = {
-  green: "Good",
-  yellow: "Monitor",
-  red: "Needs attention",
+  green: "Gut",
+  yellow: "Beobachten",
+  red: "Handeln",
 };
 
 export function getHealthStatus(score: number): HealthStatus {

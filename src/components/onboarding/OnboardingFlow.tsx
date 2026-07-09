@@ -34,7 +34,7 @@ type PhotoSlot = {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-400">
+    <label className="text-[11px] font-semibold uppercase tracking-[0.14em] text-olive">
       {children}
     </label>
   );
@@ -60,7 +60,7 @@ function TextInput({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
-      className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-300 outline-none transition focus:border-zinc-400"
+      className="mt-1.5 w-full rounded-2xl border border-cream-deep bg-paper px-3.5 py-2.5 text-sm text-ink placeholder:text-olive/40 outline-none transition focus:border-forest"
     />
   );
 }
@@ -75,16 +75,14 @@ function SegmentedControl<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <div className="mt-1.5 flex rounded-xl border border-zinc-200 p-1">
+    <div className="mt-1.5 flex rounded-2xl border border-cream-deep bg-paper p-1">
       {options.map((option) => (
         <button
           key={option.value}
           type="button"
           onClick={() => onChange(option.value)}
-          className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
-            value === option.value
-              ? "bg-zinc-900 text-white"
-              : "text-zinc-500"
+          className={`flex-1 rounded-xl py-2 text-sm font-medium transition ${
+            value === option.value ? "bg-forest text-white" : "text-olive"
           }`}
         >
           {option.label}
@@ -167,18 +165,18 @@ export function OnboardingFlow() {
   };
 
   return (
-    <div className="flex h-full flex-col px-5 pb-8 pt-14">
+    <div className="flex h-full flex-col bg-cream px-5 pb-8 pt-14">
       <div className="mb-6">
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-400">
-          Step {step} of 2
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-olive">
+          Schritt {step} von 2
         </p>
-        <h1 className="mt-2 text-xl font-semibold text-zinc-900">
-          {step === 1 ? "About your dog" : "Add photos"}
+        <h1 className="mt-2 font-display text-[26px] font-semibold leading-tight text-ink">
+          {step === 1 ? "Erzähl uns von deinem Hund" : "Fotos hinzufügen"}
         </h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-olive">
           {step === 1
-            ? "Tell us the basics to personalize health insights."
-            : "Upload up to 3 photos. Optional for now."}
+            ? "Die Basisdaten legen die Referenz-Alterungskurve fest."
+            : "Bis zu 3 Fotos (Front, Seite, oben) — vorerst optional."}
         </p>
       </div>
 
@@ -189,36 +187,36 @@ export function OnboardingFlow() {
             <TextInput
               value={form.name}
               onChange={(value) => updateForm("name", value)}
-              placeholder="Rex"
+              placeholder="Finn"
             />
           </div>
 
           <div>
-            <FieldLabel>Breed</FieldLabel>
+            <FieldLabel>Rasse</FieldLabel>
             <TextInput
               value={form.breed}
               onChange={(value) => updateForm("breed", value)}
-              placeholder="Corgi"
+              placeholder="Finnischer Spitz"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <FieldLabel>Age (years)</FieldLabel>
+              <FieldLabel>Alter (Jahre)</FieldLabel>
               <TextInput
                 value={form.ageYears}
                 onChange={(value) => updateForm("ageYears", value)}
-                placeholder="5"
+                placeholder="7"
                 type="number"
                 inputMode="decimal"
               />
             </div>
             <div>
-              <FieldLabel>Weight (kg)</FieldLabel>
+              <FieldLabel>Gewicht (kg)</FieldLabel>
               <TextInput
                 value={form.weightKg}
                 onChange={(value) => updateForm("weightKg", value)}
-                placeholder="12.5"
+                placeholder="9,5"
                 type="number"
                 inputMode="decimal"
               />
@@ -226,24 +224,24 @@ export function OnboardingFlow() {
           </div>
 
           <div>
-            <FieldLabel>Sex</FieldLabel>
+            <FieldLabel>Geschlecht</FieldLabel>
             <SegmentedControl
               value={form.sex}
               options={[
-                { value: "male", label: "Male" },
-                { value: "female", label: "Female" },
+                { value: "male", label: "Rüde" },
+                { value: "female", label: "Hündin" },
               ]}
               onChange={(value) => updateForm("sex", value)}
             />
           </div>
 
           <div>
-            <FieldLabel>Neutered / spayed</FieldLabel>
+            <FieldLabel>Kastriert / sterilisiert</FieldLabel>
             <SegmentedControl
               value={form.neutered ? "yes" : "no"}
               options={[
-                { value: "yes", label: "Yes" },
-                { value: "no", label: "No" },
+                { value: "yes", label: "Ja" },
+                { value: "no", label: "Nein" },
               ]}
               onChange={(value) => updateForm("neutered", value === "yes")}
             />
@@ -255,17 +253,19 @@ export function OnboardingFlow() {
             {photos.map((slot, index) => (
               <label
                 key={index}
-                className="relative flex aspect-square cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 transition active:scale-[0.98]"
+                className="relative flex aspect-square cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-olive/30 bg-paper transition active:scale-[0.98]"
               >
                 {slot ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={slot.preview}
-                    alt={`Dog photo ${index + 1}`}
+                    alt={`Hundefoto ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-xs text-zinc-400">Photo {index + 1}</span>
+                  <span className="text-xs text-olive">
+                    {["Front", "Seite", "Oben"][index]}
+                  </span>
                 )}
                 <input
                   type="file"
@@ -278,8 +278,9 @@ export function OnboardingFlow() {
               </label>
             ))}
           </div>
-          <p className="text-xs text-zinc-400">
-            Tap a slot to upload. Photos are stored locally on this device.
+          <p className="text-xs text-olive">
+            Tippe auf ein Feld zum Hochladen. Fotos bleiben lokal auf diesem
+            Gerät.
           </p>
         </div>
       )}
@@ -290,18 +291,18 @@ export function OnboardingFlow() {
             type="button"
             disabled={!isStep1Valid}
             onClick={() => setStep(2)}
-            className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
+            className="w-full rounded-2xl bg-forest py-3 text-sm font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
           >
-            Continue
+            Weiter
           </button>
         ) : (
           <button
             type="button"
             disabled={submitting}
             onClick={handleComplete}
-            className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
+            className="w-full rounded-2xl bg-forest py-3 text-sm font-medium text-white transition active:scale-[0.98] disabled:opacity-40"
           >
-            {submitting ? "Saving…" : "Complete"}
+            {submitting ? "Wird gespeichert…" : "Baseline berechnen"}
           </button>
         )}
 
@@ -309,9 +310,9 @@ export function OnboardingFlow() {
           <button
             type="button"
             onClick={() => setStep(1)}
-            className="w-full rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-700 transition active:scale-[0.98]"
+            className="w-full rounded-2xl bg-cream-deep py-3 text-sm font-medium text-ink transition active:scale-[0.98]"
           >
-            Back
+            Zurück
           </button>
         )}
 
@@ -319,18 +320,18 @@ export function OnboardingFlow() {
           <button
             type="button"
             onClick={fillTestData}
-            className="w-full rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-700 transition active:scale-[0.98]"
+            className="w-full rounded-2xl bg-cream-deep py-3 text-sm font-medium text-ink transition active:scale-[0.98]"
           >
-            Use test data
+            Testdaten einfüllen
           </button>
         )}
 
         <button
           type="button"
           onClick={skipWithTestData}
-          className="w-full py-2 text-sm text-zinc-400 transition active:opacity-60"
+          className="w-full py-2 text-sm text-olive transition active:opacity-60"
         >
-          Skip for testing
+          Zum Testen überspringen
         </button>
       </div>
     </div>

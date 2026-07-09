@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -7,18 +7,19 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
-  title: "Mammaly",
-  description: "Mobile pet care app — web emulation",
+  title: "mammaly Health Coach",
+  description: "Wie gesund altert dein Hund? — Prototyp",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Mammaly",
+    title: "mammaly",
   },
 };
 
@@ -28,7 +29,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#ffffff",
+  themeColor: "#f2efe3",
 };
 
 export default function RootLayout({
@@ -38,8 +39,8 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="de"
+      className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full">{children}</body>
     </html>

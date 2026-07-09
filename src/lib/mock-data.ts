@@ -1,52 +1,54 @@
 import { calculateHealthScore } from "@/lib/health-scoring";
 
 export const dog = {
-  name: "Rex",
-  breed: "Corgi",
-  ageYears: 5,
+  name: "Finn",
+  breed: "Finnischer Spitz",
+  ageYears: 7,
 };
 
-export const weeklyHealthTrend = [
-  { day: "Mon", score: 72 },
-  { day: "Tue", score: 74 },
-  { day: "Wed", score: 73 },
-  { day: "Thu", score: 75 },
-  { day: "Fri", score: 74 },
-  { day: "Sat", score: 76 },
-  { day: "Sun", score: 75 },
-];
+/** Seed für die Check-in-Serie, damit der Prototyp lebendig wirkt. */
+export const STREAK_SEED = 11;
 
-export const weeklyScoreDelta = 3;
+/** Gesamt-Score-Verlauf der letzten 3 Wochen; der letzte Punkt wird live ersetzt. */
+export const healthTrend = [
+  { label: "vor 3 Wochen", score: 71 },
+  { label: "", score: 72 },
+  { label: "", score: 72 },
+  { label: "vor 2 Wochen", score: 73 },
+  { label: "", score: 74 },
+  { label: "vor 1 Woche", score: 74 },
+  { label: "Heute", score: 75 },
+];
 
 export const healthProfile = calculateHealthScore([
   {
     id: "weight",
-    label: "Weight",
+    label: "Gewicht & Körper",
     score: 84,
-    insight: "Body condition is within the healthy range.",
+    insight: "Der Körperzustand liegt im gesunden Bereich.",
   },
   {
     id: "movement",
-    label: "Movement",
+    label: "Bewegung & Muskulatur",
     score: 76,
-    insight: "Daily activity is slightly below the recommended level.",
+    insight: "Die tägliche Aktivität liegt leicht unter der Empfehlung.",
   },
   {
     id: "digestion",
-    label: "Digestion",
+    label: "Verdauung & Darm",
     score: 91,
-    insight: "Stool quality and appetite patterns look stable.",
+    insight: "Verdauung und Appetit sind stabil.",
   },
   {
     id: "cognition",
-    label: "Cognition & energy",
+    label: "Kognition & Vitalität",
     score: 69,
-    insight: "Energy dips were noted during the last two weeks.",
+    insight: "In den letzten zwei Wochen gab es Energie-Tiefs.",
   },
   {
     id: "teeth",
-    label: "Teeth",
+    label: "Zähne & Maul",
     score: 54,
-    insight: "Tartar buildup suggests a dental checkup is due.",
+    insight: "Anzeichen von Zahnstein — eine Zahnkontrolle ist fällig.",
   },
 ]);
