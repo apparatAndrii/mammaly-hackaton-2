@@ -14,12 +14,20 @@ export function DailyCheckInCard() {
   } = useDailyCheckIn();
   const [modalOpen, setModalOpen] = useState(false);
 
+  const openCheckIn = () => {
+    if (completedToday) return;
+    setModalOpen(true);
+  };
+
   return (
     <>
       <button
         type="button"
-        onClick={() => setModalOpen(true)}
-        className="flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3.5 text-left transition active:scale-[0.99]"
+        onClick={openCheckIn}
+        disabled={completedToday}
+        className={`flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3.5 text-left transition ${
+          completedToday ? "cursor-default" : "active:scale-[0.99]"
+        }`}
       >
         <div className="flex items-center gap-3">
           <div
@@ -40,7 +48,9 @@ export function DailyCheckInCard() {
             </p>
           </div>
         </div>
-        <ChevronRight className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
+        {!completedToday && (
+          <ChevronRight className="h-4 w-4 text-zinc-400" strokeWidth={2.5} />
+        )}
       </button>
 
       <DailyCheckInFlow
