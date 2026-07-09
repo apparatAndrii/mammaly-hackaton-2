@@ -32,7 +32,7 @@ export function BiologicalAgeModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/20 p-6"
+      className="absolute inset-0 z-50 flex items-center justify-center bg-zinc-900/20 p-6"
       onClick={onClose}
       role="presentation"
     >

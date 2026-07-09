@@ -7,16 +7,12 @@ type DailyCheckInFlowProps = {
   open: boolean;
   onClose: () => void;
   onComplete: (answers: Record<string, string>) => void;
-  onSkipNeutral: () => void;
-  onUseTestAnswers: () => void;
 };
 
 export function DailyCheckInFlow({
   open,
   onClose,
   onComplete,
-  onSkipNeutral,
-  onUseTestAnswers,
 }: DailyCheckInFlowProps) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -57,7 +53,7 @@ export function DailyCheckInFlow({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-900/20 p-4"
+      className="absolute inset-0 z-50 flex items-end justify-center bg-zinc-900/20 p-4"
       onClick={onClose}
       role="presentation"
     >
@@ -104,29 +100,6 @@ export function DailyCheckInFlow({
             </div>
           </>
         )}
-
-        <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3">
-          <button
-            type="button"
-            onClick={() => {
-              onSkipNeutral();
-              onClose();
-            }}
-            className="text-xs font-medium text-zinc-500 transition hover:text-zinc-700"
-          >
-            Skip (neutral)
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onUseTestAnswers();
-              onClose();
-            }}
-            className="text-xs font-medium text-emerald-600 transition hover:text-emerald-700"
-          >
-            Use test answers
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -6,12 +6,7 @@ import { DailyCheckInFlow } from "@/components/mobile/home/DailyCheckInFlow";
 import { useDailyCheckIn } from "@/context/DailyCheckInContext";
 
 export function DailyCheckInCard() {
-  const {
-    completedToday,
-    completeCheckIn,
-    skipWithNeutralAnswers,
-    useTestAnswers,
-  } = useDailyCheckIn();
+  const { completedToday, completeCheckIn } = useDailyCheckIn();
   const [modalOpen, setModalOpen] = useState(false);
 
   const openCheckIn = () => {
@@ -57,8 +52,6 @@ export function DailyCheckInCard() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onComplete={completeCheckIn}
-        onSkipNeutral={skipWithNeutralAnswers}
-        onUseTestAnswers={useTestAnswers}
       />
     </>
   );
